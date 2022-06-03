@@ -14,30 +14,42 @@
   </head>
 
   <body>
-    <div style="background: beige; width: 0px; height: 20px;"></div>
+    <div style="background: beige; width: 0px; height: 20px"></div>
     <button>按钮</button>
     <div id="root"></div>
     <script type="text/javascript">
-      let div = document.querySelector('div');
-      let button = document.querySelector('button');
-      let startTime = 0;
 
-      function progress() {
-        div.style.width = div.offsetWidth + 1 + 'px';
-        div.innerHTML = div.offsetWidth + '%';
-        if(div.offsetWidth < 100) {
-          console.log((Date.now() - startTime) + 'ms')
-          startTime = Date.now();
-          requestAnimationFrame(progress);
+      function sleep(duration) {
+        let start = Date.now();
+        while(start + duration > Date.now()) {
+
+        }
+      }
+      let works = [
+        () => {
+          sleep(100)
+          console.log("A1开始"), console.log("A1结束");
+        },
+        () => {
+          console.log("B1开始"), console.log("B1结束");
+        },
+      ];
+      requestIdleCallback(workLoop,{timeout:1000});
+
+      function workLoop(deadline) {
+        console.log("本帧的的时间", parseInt(deadline.timeRemaining()));
+        while (deadline.timeRemaining() > 0 && works.length > 0) {
+          perforUnitOfWork();
+        }
+        if(works.length > 0) {
+          requestIdleCallback(workLoop);
         }
       }
 
-      button.onclick = function() {
-        div.style.width = '0px';
-        startTime = Date.now();
-        requestAnimationFrame(progress)
+      function perforUnitOfWork() {
+        let work = works.shift();
+        work();
       }
-
     </script>
   </body>
 </html>
