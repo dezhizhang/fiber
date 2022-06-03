@@ -14,6 +14,30 @@
   </head>
 
   <body>
+    <div style="background: beige; width: 0px; height: 20px;"></div>
+    <button>按钮</button>
     <div id="root"></div>
+    <script type="text/javascript">
+      let div = document.querySelector('div');
+      let button = document.querySelector('button');
+      let startTime = 0;
+
+      function progress() {
+        div.style.width = div.offsetWidth + 1 + 'px';
+        div.innerHTML = div.offsetWidth + '%';
+        if(div.offsetWidth < 100) {
+          console.log((Date.now() - startTime) + 'ms')
+          startTime = Date.now();
+          requestAnimationFrame(progress);
+        }
+      }
+
+      button.onclick = function() {
+        div.style.width = '0px';
+        startTime = Date.now();
+        requestAnimationFrame(progress)
+      }
+
+    </script>
   </body>
 </html>
