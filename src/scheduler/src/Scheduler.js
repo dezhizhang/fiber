@@ -1,19 +1,37 @@
 
 
-let scheduledHostCallback = null;
-const messageChannel = new MessageChannel();
-messageChannel.port1.onmessage = performWorkUnitlDeadline;
+import { requestHostCallback,shouldYieldToHost as shouldYield } from './SchedulerHostCallback';
 
-function performWorkUnitlDeadline() {
-    
-}
-
+let taskQueue = [];
+let currentTask = null;
 function scheduleCallback(callback) {
-    requestHostCallback(callback);
+    taskQueue.push(callback);
+    requestHostCallback(flushWork);
 }
 
+function flushWork() {
+    return workLoop();
+}
+
+function workLoop() {
+    currentTask = taskQueue[0];
+    while(currentTask) {
+        if(shouldYield()) {
+            break;
+        }
+        const continuationCallback = currentTask();
+        if(typeof continuationCallback === 'function') {
+            currentTask = continuationCallback;
+        }else {
+            taskQueue.shift();
+        }
+        currentTask = taskQueue[0]
+    }
+    return currentTask;
+}
 
 export {
 
+    shouldYield,
     scheduleCallback,
 }
